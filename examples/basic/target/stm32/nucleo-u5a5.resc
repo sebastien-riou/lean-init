@@ -1,0 +1,16 @@
+:name: Nucleo-u5a5
+:description: This script runs the leanftl test suite on Nucleo-u5a5
+
+$name?="Nucleo-u5a5"
+$bin ?= $CWD/build/build-nucleo-u5a5zj-q.cmake/leaninit-stm32.elf
+mach create $name
+machine LoadPlatformDescription $CWD/target/stm32/stm32u5a5.repl
+
+machine StartGdbServer 3333
+
+macro reset
+"""
+    sysbus LoadELF $bin
+"""
+
+runMacro $reset
