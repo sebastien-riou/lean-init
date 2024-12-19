@@ -13,6 +13,28 @@
             "args": ["${workspaceFolder}/examples/basic/build/build-nucleo-u5a5zj-q.cmake/leaninit-stm32.elf","arm-none-eabi-","--out=${workspaceFolder}/examples/basic/build/build-nucleo-u5a5zj-q.cmake/leaninit-stm32.elf.final.elf"]
         },
         {
+            "name": "Debug application in Renode",
+            "cwd": "${workspaceFolder}",
+            "type": "cortex-debug",
+            "executable":  "${workspaceFolder}/examples/basic/build/build-nucleo-u5a5zj-q.cmake/leaninit-stm32.elf.final.elf",
+            "request": "launch",
+            "servertype": "external",
+            "preLaunchTask": "Run Renode",
+            "postDebugTask": "Close Renode",
+            "gdbTarget": "localhost:3333",
+            "toolchainPrefix": "arm-none-eabi-",
+            "showDevDebugOutput": "raw",
+            "overrideLaunchCommands": ["monitor start"],
+            "overrideRestartCommands": ["monitor pause","monitor runMacro $reset"],
+            "postStartSessionCommands": ["break main"],
+            "device": "STM32U5A5ZJTxQ", //MCU used
+            "runToEntryPoint": "main",
+            "gdbPath":"${config:STM32VSCodeExtension.cubeCLT.path}/GNU-tools-for-STM32/bin/arm-none-eabi-gdb", 
+            "svdFile": "${config:STM32VSCodeExtension.cubeCLT.path}/STMicroelectronics_CMSIS_SVD/STM32U5A5.svd",
+            "armToolchainPath": "${config:STM32VSCodeExtension.cubeCLT.path}/GNU-tools-for-STM32/bin",
+            
+        },
+        {
             "name": "Debug NUCLEO-U5A5ZJ-Q",
             "cwd": "${workspaceFolder}",
             "type": "cortex-debug",

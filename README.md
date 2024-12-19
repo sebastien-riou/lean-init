@@ -1,6 +1,18 @@
 # lean-init
 Compression of initialized data for embedded systems.
 
+## Installation
+
+### Python package
+````
+pipenv shell
+pip install leaninit
+````
+
+### Native dependencies
+The python package relies on [lz4](https://lz4.org/) to perform the compression and [binutils](https://www.gnu.org/software/binutils/) to parse/edit elf files.
+Binutils package need to match the target CPU.
+
 ## How to integrate
 
 ### LD file
