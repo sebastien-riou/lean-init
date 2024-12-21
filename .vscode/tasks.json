@@ -10,7 +10,7 @@
     },
     "tasks": [
         {
-            "label": "Build application",
+            "label": "Build U5A5",
             "type": "shell",
             "options": {
                 "cwd": "${workspaceFolder}/examples/basic"
@@ -30,7 +30,7 @@
             }
         },
         {
-            "label": "Run Renode",
+            "label": "Renode U5A5",
             "type": "shell",
             "options": {
                 "cwd": "${workspaceFolder}/examples/basic"
@@ -38,6 +38,57 @@
             "command": "/home/sru/.local/renode_portable/renode",
             "args": [
                 "target/stm32/nucleo-u5a5.resc"
+            ],
+            "dependsOn": [
+                "Build application"
+            ],
+            "isBackground": true,
+            "problemMatcher": {
+                "source": "Renode",
+                "pattern": {
+                    "regexp": ""
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Renode, version .*",
+                    "endsPattern": ".*GDB server with all CPUs started on port.*"
+                }
+            },
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Build RV32IC",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/examples/basic"
+            },
+            "command": "./buildit_env",
+            "args": [
+                "litex.cmake",
+                "debug"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Renode RV32IC",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/examples/basic"
+            },
+            "command": "/home/sru/.local/renode_portable/renode",
+            "args": [
+                "target/litex/litex.resc"
             ],
             "dependsOn": [
                 "Build application"

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(leaninit-stm32)
+project(leaninit-basic)
 
 # Sources
 set(sources_SRCS
@@ -24,6 +24,6 @@ set(link_LIBS
 include("cmake/generic_binary.cmake")
 
 include(CTest)
-add_test(NAME leaninit-stm32
-					COMMAND leaninit-stm32)
+add_test(NAME leaninit-basic
+					COMMAND leaninit-basic)
 

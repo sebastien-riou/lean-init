@@ -10,16 +10,38 @@
             "type": "debugpy",
             "request": "launch",
             "module": "leaninit.cli",
-            "args": ["${workspaceFolder}/examples/basic/build/build-nucleo-u5a5zj-q.cmake/leaninit-stm32.elf","arm-none-eabi-","--out=${workspaceFolder}/examples/basic/build/build-nucleo-u5a5zj-q.cmake/leaninit-stm32.elf.final.elf"]
+            "args": ["${workspaceFolder}/examples/basic/build/build-nucleo-u5a5zj-q.cmake/leaninit-basic.elf","arm-none-eabi-","--out=${workspaceFolder}/examples/basic/build/build-nucleo-u5a5zj-q.cmake/leaninit-stm32.elf.final.elf"]
         },
         {
-            "name": "Debug application in Renode",
+            "name": "Debug Renode RV32IC",
+            "cwd": "${workspaceFolder}",
+            "type": "cppdbg",
+            "program":  "${workspaceFolder}/examples/basic/build/build-litex.cmake/leaninit-basic.elf.final.elf",
+            "request": "launch",
+            "args":[],
+            "stopAtEntry":true,
+            "preLaunchTask": "Renode RV32IC",
+            "postDebugTask": "Close Renode",
+            "environment": [],
+            "MIMode": "gdb",
+            "miDebuggerPath": "riscv-none-elf-gdb",
+            "miDebuggerServerAddress": "localhost:3333",
+            "setupCommands": [
+                {
+                "description": "Enable pretty-printing for gdb",
+                "text": "-enable-pretty-printing",
+                "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug Renode U5A5",
             "cwd": "${workspaceFolder}",
             "type": "cortex-debug",
-            "executable":  "${workspaceFolder}/examples/basic/build/build-nucleo-u5a5zj-q.cmake/leaninit-stm32.elf.final.elf",
+            "executable":  "${workspaceFolder}/examples/basic/build/build-nucleo-u5a5zj-q.cmake/leaninit-basic.elf.final.elf",
             "request": "launch",
             "servertype": "external",
-            "preLaunchTask": "Run Renode",
+            "preLaunchTask": "Renode U5A5",
             "postDebugTask": "Close Renode",
             "gdbTarget": "localhost:3333",
             "toolchainPrefix": "arm-none-eabi-",
