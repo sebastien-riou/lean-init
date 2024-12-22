@@ -1,6 +1,11 @@
 # lean-init
 Compression of initialized data for embedded systems.
 
+## Features
+
+- Use a fast decompressor ([lz4](https://lz4.org/))
+- Produce a fully debuggable elf file
+
 ## Installation
 
 ### Python package
@@ -27,3 +32,16 @@ Binutils package need to match the target CPU.
 
 ### Build system
 - Invoke `leansys.cli` at the end of the build to generate the final elf file.
+
+## How to test
+
+### Native dependencies
+The test use [Renode](https://renode.readthedocs.io/en/latest/index.html).
+
+### Launching a test
+The `testit_env` scripts build the python package in an isolated environment and then test the basic example for a particular build preset.
+
+````
+cd examples/basic
+./testit_env minSizeRel
+````

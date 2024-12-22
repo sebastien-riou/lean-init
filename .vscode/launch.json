@@ -13,7 +13,7 @@
             "args": ["${workspaceFolder}/examples/basic/build/build-nucleo-u5a5zj-q.cmake/leaninit-basic.elf","arm-none-eabi-","--out=${workspaceFolder}/examples/basic/build/build-nucleo-u5a5zj-q.cmake/leaninit-stm32.elf.final.elf"]
         },
         {
-            "name": "Debug Renode RV32IC",
+            "name": "Dbg Renode RV32IC",
             "cwd": "${workspaceFolder}",
             "type": "cppdbg",
             "program":  "${workspaceFolder}/examples/basic/build/build-litex.cmake/leaninit-basic.elf.final.elf",
@@ -35,7 +35,7 @@
             ]
         },
         {
-            "name": "Debug Renode U5A5",
+            "name": "Dbg Renode U5A5",
             "cwd": "${workspaceFolder}",
             "type": "cortex-debug",
             "executable":  "${workspaceFolder}/examples/basic/build/build-nucleo-u5a5zj-q.cmake/leaninit-basic.elf.final.elf",

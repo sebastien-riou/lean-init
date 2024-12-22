@@ -24,7 +24,7 @@ enable_language(C CXX ASM)
 message("Build type: " ${CMAKE_BUILD_TYPE})
 
 # Setup compiler settings
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD 20)
@@ -150,6 +150,7 @@ target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
     -Wpedantic
     -Wno-unused-parameter
     -Wno-overlength-strings
+    -fno-threadsafe-statics
     $<$<COMPILE_LANGUAGE:C>: >
     $<$<COMPILE_LANGUAGE:CXX>:
 
