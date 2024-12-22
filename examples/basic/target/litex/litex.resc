@@ -16,5 +16,6 @@ macro reset
 """
 
 showAnalyzer sysbus.uart
+uart CreateFileBackend $CWD/uart.log true
 
 runMacro $reset
