@@ -26,7 +26,7 @@ _start:
 	addi a1, a1, 4
 	bltu a1, a2, 1b
 2:
-
+*/
 	// Clear bss section
 	la a0, _sbss
 	la a1, _ebss
@@ -36,7 +36,7 @@ _start:
 	addi a0, a0, 4
 	bltu a0, a1, 1b
 2:
-*/
+
         call leaninit_init
 
         # set mstatus.MIE=1 (enable M mode interrupts in general)

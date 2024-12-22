@@ -20,7 +20,6 @@ static const uint8_t* leaninit_decompress(void*dst,const void*const src){
         if (blockSize == 0) break;
         // decompress block
         uintptr_t blockOffset = 0;
-        uintptr_t numWritten  = 0;
         while (blockOffset < blockSize){
             // get a token
             uint8_t token = (*in++);
@@ -80,7 +79,7 @@ void leaninit_init(){
             dst |= ((uintptr_t)(*src++)) <<  shift;//always little endian
             shift += 8;
         }
-        if(&__leaninit_table==dst) break;
+        if(&__leaninit_table==(void*)dst) break;
 		src = leaninit_decompress((void*)dst,src);
 	};
 }

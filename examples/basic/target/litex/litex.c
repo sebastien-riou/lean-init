@@ -11,8 +11,8 @@ typedef struct
     uint32_t EventEnable;
 } UART;
 
-const uint32_t TxEvent = 0b01;
-const uint32_t RxEvent = 0b10;
+const uint32_t TxEvent = 1;
+const uint32_t RxEvent = 2;
 volatile UART *const uart = (UART *)0x60001800;
 
 void init(int argc, const char*argv[]){

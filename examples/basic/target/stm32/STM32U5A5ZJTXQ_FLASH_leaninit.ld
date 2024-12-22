@@ -123,7 +123,7 @@ SECTIONS
   } >FLASH
 
   /* .leaninit: shall be the last section in FLASH */
-	.leaninit : ALIGN(4)
+	.leaninit (READONLY) : ALIGN(4)
 	{
 		__leaninit_table = .;
     /* 
