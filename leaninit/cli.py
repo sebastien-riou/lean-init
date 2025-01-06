@@ -1,4 +1,5 @@
 import argparse
+import copy
 import logging
 import os
 import io
@@ -6,8 +7,6 @@ import humanfriendly
 
 from leaninit.elf import Elf
 from leaninit import lz4l
-
-
 
 def process_elf(org_elf_file,*,binutils_prefix,out_elf=None):
     elf = Elf(org_elf_file,binutils_prefix=binutils_prefix)
@@ -21,35 +20,114 @@ def process_elf(org_elf_file,*,binutils_prefix,out_elf=None):
         logging.debug(f'read_ptr: {out}')
         return out
     
+    def read_str():
+        out = bytearray()
+        while True:
+            c = leaninit_data.read(1)
+            if 0 == c[0]:
+                break
+            out += c
+        out = out.decode()
+        logging.debug(f'read_str: {out}')
+        return out
+    
     sections_start_addr = []
-    logging.debug(f'leaninit_section[\'vma\'] = {leaninit_section['vma']}')
+    #logging.debug(f'leaninit_section[\'vma\'] = {leaninit_section['vma']}')
+    #while True:
+    #    addr = read_ptr()
+    #    if leaninit_section['vma'] == addr:
+    #        break
+    #    sections_start_addr.append(addr)
+
     while True:
-        addr = read_ptr()
-        if leaninit_section['vma'] == addr:
+        name = read_str()
+        if 0==len(name):
             break
-        sections_start_addr.append(addr)
+        try:
+            section = elf.get_section_by_name(name)
+            sections_start_addr.append(section['lma'])
+        except:
+            logging.debug(f'section "{name}" not found, assume it has been optimized away') #assume the section has been removed
     region_size = read_ptr()
+    logging.debug(f'region_size = {humanfriendly.format_size(region_size,binary=True)}')
 
     print(f'{len(sections_start_addr)} sections to compress.')
-    compressed_sections = []
-
+    
     if 0 == len(sections_start_addr):
         logging.warning('Nothing to compress')
         return 
     
+    sections_end_addr = []
+    compressed_sections = []
     for lma in sections_start_addr:
         section = elf.get_section_by_lma(lma)
         data = elf.get_section_data(section['name'])
-        compressed_data = lz4l.compress(data)[4:] #skip frame descriptor
+        section_end_addr = lma + section['size'] - 1
+        sections_end_addr.append(section_end_addr)
         compressed_sections.append(
             {
                 'name': section['name'],
+                'lma': lma,
                 'vma': section['vma'],
+                'size': len(data),
                 'data': data,
-                'compressed_data': compressed_data
+                'merged': False
             }
         )
     
+    # attempt to merge sections
+    merged = True
+    merge_cnt = 0
+    while merged: 
+        merged = False
+        for last in sections_end_addr:
+            if last+1 in sections_start_addr:
+
+                # we can merge those section
+                low_addr_index = sections_end_addr.index(last)
+                high_addr_index = sections_start_addr.index(last+1)
+                low_addr_lma = sections_start_addr[low_addr_index]
+                high_addr_lma = sections_start_addr[high_addr_index]
+                low_addr_section = copy.deepcopy(compressed_sections[low_addr_index])
+                high_addr_section = copy.deepcopy(compressed_sections[high_addr_index])
+                logging.debug(f'Merging {low_addr_section['name']} and {high_addr_section['name']}')
+                
+                # remove both original sections
+                del sections_start_addr[low_addr_index]
+                del sections_end_addr[low_addr_index]
+                del compressed_sections[low_addr_index]
+                high_addr_index = sections_start_addr.index(last+1) #refresh index
+                del sections_start_addr[high_addr_index]
+                del sections_end_addr[high_addr_index]
+                del compressed_sections[high_addr_index]
+                elf.delete_section(low_addr_section['name'])
+                elf.delete_section(high_addr_section['name'])
+
+                # create the merged sections
+                new_last = high_addr_section['lma'] + high_addr_section['size'] - 1
+                new_data = low_addr_section['data'] + high_addr_section['data']
+                new_size = len(new_data)
+                sections_start_addr.append(low_addr_lma)
+                sections_end_addr.append(new_last)
+                merge_cnt += 1
+                new_name = f'.leaninit_merge{merge_cnt}'
+                compressed_sections.append(
+                    {
+                        'name': new_name,
+                        'lma': low_addr_lma,
+                        'vma': low_addr_section['vma'],
+                        'size': new_size,
+                        'data': new_data,
+                        'merged': True
+                    }
+                )
+                merged = True
+
+    #compress the sections
+    for section in compressed_sections:
+        logging.debug(f'Compressing {section['name']}')
+        section['compressed_data'] = lz4l.compress(section['data'])[4:] #skip frame descriptor
+
     def format_size(size):
         return humanfriendly.format_size(size,binary=True)
 
@@ -76,7 +154,8 @@ def process_elf(org_elf_file,*,binutils_prefix,out_elf=None):
     for section in compressed_sections:
         write_ptr(section['vma'])
         final_data += section['compressed_data']
-        elf.delete_section(section['name'])
+        if not section['merged']:
+            elf.delete_section(section['name'])
     write_ptr(leaninit_section['vma']) #end marker
 
     org_size = leaninit_section['size']

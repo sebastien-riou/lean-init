@@ -1,10 +1,14 @@
 #pragma once
 
+#ifndef LEANINIT_FUNC
+#define LEANINIT_FUNC __attribute__((section(".leaninit_func")))
+#endif
+
 extern void* __leaninit_table;
 
 //decompress lz4 "legacy" format .i.e. without any optional part
 //src shall not include the magic bytes
-static const uint8_t* leaninit_decompress(void*dst,const void*const src){
+static LEANINIT_FUNC const uint8_t* leaninit_decompress(void*dst,const void*const src){
     const uint8_t* in=(const uint8_t*)src;
     uint8_t*out=(uint8_t*)dst;
     // contains the latest decoded data
@@ -70,7 +74,7 @@ static const uint8_t* leaninit_decompress(void*dst,const void*const src){
     return in;
 }
 
-void leaninit_init(){
+LEANINIT_FUNC void leaninit_init(){
 	const uint8_t*src = (const uint8_t*)(&__leaninit_table);
 	while(1){
         uintptr_t dst = 0;

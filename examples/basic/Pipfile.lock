@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a5a8e7a266fac71288499ed62c0dc3a50327a0c953e994cf5ae327feade097de"
+            "sha256": "7e830bf4b1d8fca2421aa831d8607a7562b46ebb6b9359bd65089657d6225fcf"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -34,12 +34,10 @@
             "version": "==10.0"
         },
         "leaninit": {
-            "file": "../../dist/leaninit-0.0.2-py3-none-any.whl",
+            "file": "../../dist/leaninit-0.0.3.dev1+g4a1944e.d20250106-py3-none-any.whl",
             "hashes": [
-                "sha256:0a8595660885e96882c0a7deb150f01457716e5b41de7fbfb1d113973cd81f5d",
-                "sha256:f90909d3fa69d1170411f703ef6a95e304dc0d20f106cc81dc8851862bf4d0e7"
-            ],
-            "markers": "python_version >= '3.10'"
+                "sha256:f7957705e53eb8dd37204f4ca243ddc4d3e224167ffbd33568b7c1b5c6a11afe"
+            ]
         },
         "psutil": {
             "hashes": [

@@ -172,9 +172,8 @@ target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Execute post-build to print size, generate hex and bin
 add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-    COMMAND python -m leaninit.cli $<TARGET_FILE:${CMAKE_PROJECT_NAME}> ${TOOLCHAIN_PREFIX} --out-elf=$<TARGET_FILE:${CMAKE_PROJECT_NAME}>.final.elf
+    COMMAND python -m leaninit.cli --log-level=DEBUG $<TARGET_FILE:${CMAKE_PROJECT_NAME}> ${TOOLCHAIN_PREFIX} --out-elf=$<TARGET_FILE:${CMAKE_PROJECT_NAME}>.final.elf
     COMMAND ${CMAKE_OBJDUMP} -h -D $<TARGET_FILE:${CMAKE_PROJECT_NAME}>.final.elf > $<TARGET_FILE:${CMAKE_PROJECT_NAME}>.sections
-    # COMMAND ${CMAKE_SIZE} $<TARGET_FILE:${CMAKE_PROJECT_NAME}>.final.elf
     COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${CMAKE_PROJECT_NAME}>.final.elf ${CMAKE_PROJECT_NAME}.hex
     COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${CMAKE_PROJECT_NAME}>.final.elf ${CMAKE_PROJECT_NAME}.bin
 )
