@@ -1,0 +1,21 @@
+:name: LiteX
+:description: This script demonstrate basic use case of leaninit
+
+$name?="LiteX"
+$bin ?= $CWD/build/build-litex.cmake/leaninit-basic.elf.final.elf
+
+using sysbus
+mach create $name
+machine LoadPlatformDescription $CWD/target/litex/litex.repl
+
+machine StartGdbServer 3333
+
+macro reset
+"""
+    sysbus LoadELF $bin
+"""
+
+showAnalyzer sysbus.uart
+uart CreateFileBackend $CWD/uart.log true
+
+runMacro $reset

@@ -1,0 +1,18 @@
+:name: Nucleo-u5a5
+:description: This script demonstrate basic use case of leaninit
+
+$name?="Nucleo-u5a5"
+$bin ?= $CWD/build/build-nucleo-u5a5zj-q.cmake/leaninit-basic.elf.final.elf
+mach create $name
+machine LoadPlatformDescription $CWD/target/stm32/stm32u5a5.repl
+
+machine StartGdbServer 3333
+
+macro reset
+"""
+    sysbus LoadELF $bin
+"""
+
+showAnalyzer sysbus.usart1
+
+runMacro $reset
