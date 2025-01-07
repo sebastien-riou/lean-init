@@ -1,8 +1,8 @@
-import os
 import logging
-import subprocess
-import shutil
+import os
 import re
+import shutil
+import subprocess
 import tempfile
 
 
@@ -10,19 +10,18 @@ class SectionNameNotFoundError(RuntimeError):
     pass
 
 
-class Elf(object):
+class Elf:
     @staticmethod
     def invoke_tool(cmd):
-        out = []
         try:
-            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+            res = subprocess.run(cmd, capture_output=True, check=True, shell=False)  # noqa: S603
             outstr = res.stdout.decode()
             logging.debug(outstr)
             logging.debug(res.stderr.decode())
         except subprocess.CalledProcessError as e:
             nl = '\n'
             logging.debug(f'{cmd[0]} failed')
-            logging.debug(f'arguments: {str(e.args)}')
+            logging.debug(f'arguments: {e.args!s}')
             logging.debug(f'stdout{nl}{e.stdout}')
             logging.debug(f'stderr{nl}{e.stderr}')
             logging.debug(f'return code: {e.returncode}')
@@ -36,7 +35,7 @@ class Elf(object):
 
     def read_file_format(self):
         outstr = self.objdump(self._elf_file, '-a')
-        info_line = r"\s*\S+:\s+file format\s+(\S+)"
+        info_line = r'\s*\S+:\s+file format\s+(\S+)'
         m = re.search(info_line, outstr)
         self._file_format = m.group(1)
         logging.debug(f'file format is "{self._file_format}"')
@@ -69,7 +68,7 @@ class Elf(object):
         out = []
         outstr = self.objdump(self._elf_file, '-h')
         section_info = (
-            r"\d+\s+(\S+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+2\*\*(\d+)\s*\n(.*)"
+            r'\d+\s+(\S+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+2\*\*(\d+)\s*\n(.*)'
         )
         for m in re.finditer(section_info, outstr):
             flags = m.group(7).strip().split(',')
@@ -135,13 +134,16 @@ class Elf(object):
         return names
 
     def get_section_by_name(self, name):
-        return list(filter(lambda section: section['name'] == name, self.sections))[0]
+        try:
+            return next(filter(lambda section: section['name'] == name, self.sections))
+        except StopIteration as e:
+            raise SectionNameNotFoundError(f'section "{name}" not found') from e
 
     def get_section_by_vma(self, vma):
-        return list(filter(lambda section: section['vma'] == vma, self.sections))[0]
+        return next(filter(lambda section: section['vma'] == vma, self.sections))
 
     def get_section_by_lma(self, lma):
-        return list(filter(lambda section: section['lma'] == lma, self.sections))[0]
+        return next(filter(lambda section: section['lma'] == lma, self.sections))
 
     def get_section_data(self, name) -> bytes:
         names = self.get_section_names()
@@ -161,10 +163,10 @@ class Elf(object):
         outfile = self.get_tmp_file()
         try:
             self.objcopy(self._elf_file, '--remove-section', name, outfile)
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
             names = self.get_section_names()
             if name not in names:
-                raise SectionNameNotFoundError(f'section "{name}" not found')
+                raise SectionNameNotFoundError(f'section "{name}" not found') from e
             raise
         self._elf_file = outfile
 
@@ -176,10 +178,10 @@ class Elf(object):
         outfile = self.get_tmp_file()
         try:
             self.objcopy(self._elf_file, '--update-section', name + '=' + tmpfile, outfile)
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
             names = self.get_section_names()
             if name not in names:
-                raise SectionNameNotFoundError(f'section "{name}" not found')
+                raise SectionNameNotFoundError(f'section "{name}" not found') from e
             raise
         self._elf_file = outfile
 

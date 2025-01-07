@@ -1,23 +1,22 @@
-import os
 import logging
-import subprocess
+import os
 import shutil
+import subprocess
 import tempfile
 
 lz4 = shutil.which('lz4')
 
 
 def invoke_tool(*cmd) -> str:
-    out = []
     try:
-        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        res = subprocess.run(cmd, capture_output=True, check=True, shell=False)  # noqa: S603
         outstr = res.stdout.decode()
         logging.debug(outstr)
         logging.debug(res.stderr.decode())
     except subprocess.CalledProcessError as e:
         nl = '\n'
         logging.debug(f'{cmd[0]} failed')
-        logging.debug(f'arguments: {str(e.args)}')
+        logging.debug(f'arguments: {e.args!s}')
         logging.debug(f'stdout{nl}{e.stdout}')
         logging.debug(f'stderr{nl}{e.stderr}')
         logging.debug(f'return code: {e.returncode}')

@@ -1,12 +1,13 @@
 import argparse
 import copy
+import io
 import logging
 import os
-import io
+
 import humanfriendly
 
-from leaninit.elf import Elf
 from leaninit import lz4l
+from leaninit.elf import Elf, SectionNameNotFoundError
 
 
 def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
@@ -44,13 +45,18 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
         name = read_str()
         if 0 == len(name):
             break
+        is_optional = False
+        if name.endswith('?'):
+            is_optional = True
+            name = name[:-1]
         try:
             section = elf.get_section_by_name(name)
             sections_start_addr.append(section['lma'])
-        except:
-            logging.debug(
-                f'section "{name}" not found, assume it has been optimized away'
-            )  # assume the section has been removed
+        except SectionNameNotFoundError:
+            if is_optional:
+                logging.debug(f'Optional section "{name}" not found')  # assume the section has been removed
+            else:
+                raise RuntimeError(f'Mandatory section "{name}" not found')  # noqa B904
     region_size = read_ptr()
     logging.debug(f'region_size = {humanfriendly.format_size(region_size,binary=True)}')
 
@@ -90,7 +96,6 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
                 low_addr_index = sections_end_addr.index(last)
                 high_addr_index = sections_start_addr.index(last + 1)
                 low_addr_lma = sections_start_addr[low_addr_index]
-                high_addr_lma = sections_start_addr[high_addr_index]
                 low_addr_section = copy.deepcopy(compressed_sections[low_addr_index])
                 high_addr_section = copy.deepcopy(compressed_sections[high_addr_index])
                 logging.debug(f'Merging {low_addr_section['name']} and {high_addr_section['name']}')

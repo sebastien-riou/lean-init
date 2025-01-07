@@ -141,11 +141,11 @@ SECTIONS
 
     /* Here we list the sections to compress. You can add more.*/   
     ASCIZ ".rodata"
-    ASCIZ ".preinit_array"
-    ASCIZ ".init_array"
-    ASCIZ ".fini_array"
-    ASCIZ ".ARM"
-    ASCIZ ".ARM.extab"
+    ASCIZ ".preinit_array?" /* the final ? mark this section as optional, i.e. the tool won't complain if it is not in the elf file */
+    ASCIZ ".init_array?"
+    ASCIZ ".fini_array?"
+    ASCIZ ".ARM?"
+    ASCIZ ".ARM.extab?"
     ASCIZ ".text" /* Must be after .ARM* */
     ASCIZ ".data"
 

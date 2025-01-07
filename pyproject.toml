@@ -99,7 +99,7 @@ ban-relative-imports = "all"
 # Tests can use relative imports and assertions and print
 "test/**/*" = ["TID252", "S101", "T201"]
 # CLI can print
-"leaninit/*_cli.py" = ["T201"]
+"leaninit/cli.py" = ["T201"]
 
 [tool.mypy]
 disallow_untyped_defs = false
