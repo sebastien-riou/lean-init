@@ -19,6 +19,12 @@ MEMORY
 SECTIONS
 {
   /* The program code and other data into "FLASH" Rom type memory */
+  .startup :
+  {
+    *(.startup)
+    *(.leaninit_func)
+  } >FLASH
+
   .text :
   {
     *(.text)           /* .text sections (code) */
@@ -30,14 +36,14 @@ SECTIONS
     KEEP (*(.fini))
 
     _etext = .;        /* define a global symbols at end of code */
-  } >FLASH
+  } /*>FLASH*/
 
   /* Constant data into "FLASH" Rom type memory */
   .rodata :
   {
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
-  } >FLASH
+  } /*>FLASH*/
 
   /* .leaninit: shall be the last section in FLASH */
 	.leaninit (READONLY): ALIGN(4)
@@ -48,10 +54,15 @@ SECTIONS
     */
 
     /* Here we list the sections to compress. You can add more.*/
-		LONG(_sdata) /* .data */
+		ASCIZ ".rodata"
+    ASCIZ ".preinit_array"
+    ASCIZ ".init_array"
+    ASCIZ ".fini_array"
+    ASCIZ ".text" 
+    ASCIZ ".data"
 
     /* end of table marker, don't change */
-    LONG(__leaninit_table)
+    BYTE(0)
 		
     /* indicates the total size to the tool for reporting purposes */
     LONG(LENGTH(FLASH))

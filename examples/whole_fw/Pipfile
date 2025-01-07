@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 leaninit = {file = "../../dist/leaninit-0.0.3.dev1+g4a1944e.d20250106-py3-none-any.whl"}
+psutil = "*"
+robotframework = "==6.1"
+pyyaml = "*"
 
 [dev-packages]
 

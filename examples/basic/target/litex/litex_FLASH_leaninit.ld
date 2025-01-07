@@ -48,10 +48,10 @@ SECTIONS
     */
 
     /* Here we list the sections to compress. You can add more.*/
-		LONG(_sdata) /* .data */
+		ASCIZ ".data"
 
     /* end of table marker, don't change */
-    LONG(__leaninit_table)
+    BYTE(0)
 		
     /* indicates the total size to the tool for reporting purposes */
     LONG(LENGTH(FLASH))

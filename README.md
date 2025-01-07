@@ -22,6 +22,8 @@ Binutils package need to match the target CPU.
 
 ### LD file
 - User add a new section `.leaninit` and specify in it which sections shall be compressed.
+  - Use `ASCIZ` statement to specify each section name.
+  - Add `BYTE(0)` to mark the end of the list.
 - Remove `AT` statement for sections to compress.
 
 ### Start up file
@@ -45,3 +47,16 @@ The `testit_env` scripts build the python package in an isolated environment and
 cd examples/basic
 ./testit_env minSizeRel
 ````
+
+## Examples overview
+
+### `basic` example
+It is a bare metal application which outputs the full text of Saint Exupery's novel "Le petit prince" on a UART.
+
+In this example, we compress the `.data` section. It contains all initialized variables including the array `petitprince`.
+
+### `whole_fw` example
+It is a bare metal application which outputs the full text of Saint Exupery's novel "Le petit prince" on a UART.
+
+In this example, we compress the whole firmware. Everything is compressed except the startup file and the decompressor.
+At startup the firmware is decompressed into RAM and executed from there.

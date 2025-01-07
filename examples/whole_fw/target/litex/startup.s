@@ -1,6 +1,6 @@
 
 
-.section .text
+.section .startup
 .global _start      # Provide program starting address to linker
 .global _estack
 .global leaninit_init
