@@ -38,30 +38,30 @@ Example of `.leaninit` section:
 
 ````
 /* .leaninit: shall be the last section in FLASH */
-	.leaninit (READONLY): ALIGN(4)
-	{
-		__leaninit_table = .;
-        /* 
-        The tool will replace this with the compressed content.
-        */
+.leaninit (READONLY): ALIGN(4)
+{
+    __leaninit_table = .;
+    /* 
+    The tool will replace this with the compressed content.
+    */
 
-        /* Here we list the sections to compress. You can add more.*/
-            ASCIZ ".rodata"
-        ASCIZ ".preinit_array?" /* the final ? mark this section as optional, i.e. the tool won't complain if it is not in the elf file */
-        ASCIZ ".init_array?"
-        ASCIZ ".fini_array?"
-        ASCIZ ".text" 
-        ASCIZ ".data"
+    /* Here we list the sections to compress. You can add more.*/
+        ASCIZ ".rodata"
+    ASCIZ ".preinit_array?" /* the final ? mark this section as optional, i.e. the tool won't complain if it is not in the elf file */
+    ASCIZ ".init_array?"
+    ASCIZ ".fini_array?"
+    ASCIZ ".text" 
+    ASCIZ ".data"
 
-        /* end of table marker, don't change */
-        BYTE(0)
-            
-        /* indicates the total size to the tool for reporting purposes */
-        LONG(LENGTH(FLASH))
-    
-		/* Take all the remaining flash, hoping it is enough */
-		. = ORIGIN(FLASH)+LENGTH(FLASH);
-	} > FLASH
+    /* end of table marker, don't change */
+    BYTE(0)
+        
+    /* indicates the total size to the tool for reporting purposes */
+    LONG(LENGTH(FLASH))
+
+    /* Take all the remaining flash, hoping it is enough */
+    . = ORIGIN(FLASH)+LENGTH(FLASH);
+} > FLASH
 ````
 
 ### Start up file
