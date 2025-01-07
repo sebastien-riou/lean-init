@@ -11,7 +11,7 @@ dynamic = ["version"]
 authors = [
   { name="Sebastien Riou", email="" },
 ]
-description = "Initialized data compression for embedded systems"
+description = "Compression of initialized data and/or code for embedded systems."
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [

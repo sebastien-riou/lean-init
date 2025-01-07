@@ -12,7 +12,7 @@ pysatl = "==1.2.6"
 pyyaml = "==6.0.2"
 robotframework = "==6.1"
 robotframework-retryfailed = "==0.2.0"
-leaninit = {file = "../../dist/leaninit-0.0.3.dev1+g4a1944e.d20250106-py3-none-any.whl"}
+leaninit = {file = "../../dist/leaninit-0.0.4.dev1+g8785a11.d20250107-py3-none-any.whl"}
 
 [dev-packages]
 

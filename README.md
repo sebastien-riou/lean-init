@@ -1,10 +1,15 @@
 # lean-init
-Compression of initialized data for embedded systems.
+Compression of initialized data and/or code for embedded systems.
+
+This is tested against:
+- arm-none-eabi-gcc-13.2.1-1.1 (ARM Cortex-M33)
+- riscv-none-elf-gcc-13.2.0-2 (RISC-V RV32IC)
 
 ## Features
 
 - Use a fast decompressor ([lz4](https://lz4.org/))
 - Produce a fully debuggable elf file
+- User has full control over what is compressed
 
 ## Installation
 

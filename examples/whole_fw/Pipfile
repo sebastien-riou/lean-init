@@ -4,10 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-leaninit = {file = "../../dist/leaninit-0.0.3.dev1+g4a1944e.d20250106-py3-none-any.whl"}
 psutil = "*"
 robotframework = "==6.1"
 pyyaml = "*"
+leaninit = {file = "../../dist/leaninit-0.0.4.dev1+g8785a11.d20250107-py3-none-any.whl"}
 
 [dev-packages]
 
