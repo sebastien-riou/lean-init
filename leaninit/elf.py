@@ -1,19 +1,21 @@
 import os
-import logging 
+import logging
 import subprocess
 import shutil
 import re
 import tempfile
 
+
 class SectionNameNotFoundError(RuntimeError):
     pass
 
+
 class Elf(object):
-    @staticmethod 
+    @staticmethod
     def invoke_tool(cmd):
-        out=[]
+        out = []
         try:
-            res=subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
             outstr = res.stdout.decode()
             logging.debug(outstr)
             logging.debug(res.stderr.decode())
@@ -33,9 +35,9 @@ class Elf(object):
         return file
 
     def read_file_format(self):
-        outstr = self.objdump(self._elf_file,'-a')
+        outstr = self.objdump(self._elf_file, '-a')
         info_line = r"\s*\S+:\s+file format\s+(\S+)"
-        m = re.search(info_line,outstr)
+        m = re.search(info_line, outstr)
         self._file_format = m.group(1)
         logging.debug(f'file format is "{self._file_format}"')
         parts = self._file_format.split('-')
@@ -47,7 +49,7 @@ class Elf(object):
             case _:
                 logging.warning(f'could not identify address width, file format is "{self._file_format}"')
         logging.debug(f'address width is "{self._addr_width}"')
-        
+
         match parts[1]:
             case 'littlearm':
                 self._byteorder = 'little'
@@ -60,30 +62,32 @@ class Elf(object):
             case _:
                 logging.warning(f'could not identify endianess, file format is "{self._file_format}"')
         logging.debug(f'byteorder is "{self._byteorder}"')
-        
+
         return self._file_format
 
     def read_sections(self) -> list:
         out = []
-        outstr = self.objdump(self._elf_file,'-h')
-        section_info = r"\d+\s+(\S+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+2\*\*(\d+)\s*\n(.*)"
+        outstr = self.objdump(self._elf_file, '-h')
+        section_info = (
+            r"\d+\s+(\S+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+2\*\*(\d+)\s*\n(.*)"
+        )
         for m in re.finditer(section_info, outstr):
             flags = m.group(7).strip().split(',')
             flags = [s.strip() for s in flags]
             section = {
-                    'name': m.group(1),
-                    'size': int(m.group(2),16),
-                    'vma': int(m.group(3),16),
-                    'lma': int(m.group(4),16),
-                    'file-offset': int(m.group(5),16),
-                    'align': 2**int(m.group(6)),
-                    'flags': flags
+                'name': m.group(1),
+                'size': int(m.group(2), 16),
+                'vma': int(m.group(3), 16),
+                'lma': int(m.group(4), 16),
+                'file-offset': int(m.group(5), 16),
+                'align': 2 ** int(m.group(6)),
+                'flags': flags,
             }
             logging.debug(section)
             out.append(section)
         self._sections = out
         return out
-    
+
     @property
     def addr_width(self):
         if self._addr_width is None:
@@ -102,41 +106,41 @@ class Elf(object):
             self.read_file_format()
         return self._file_format
 
-    @property 
+    @property
     def sections(self):
         if self._sections is None:
             self.read_sections()
         return self._sections
 
-    def __init__(self,elf,*,binutils_prefix='riscv-none-elf-'):
+    def __init__(self, elf, *, binutils_prefix='riscv-none-elf-'):
         self._elf_file = elf
         self._binutils_prefix = binutils_prefix
-        self._objdump_path = shutil.which(binutils_prefix+'objdump')
-        self._objcopy_path = shutil.which(binutils_prefix+'objcopy')
-        self._addr_width = None 
+        self._objdump_path = shutil.which(binutils_prefix + 'objdump')
+        self._objcopy_path = shutil.which(binutils_prefix + 'objcopy')
+        self._addr_width = None
         self._byteorder = None
         self._file_format = None
         self._sections = None
 
-    def objdump(self,*args) -> str:
-        cmd = [self._objdump_path,*args]
+    def objdump(self, *args) -> str:
+        cmd = [self._objdump_path, *args]
         return self.invoke_tool(cmd)
-    
-    def objcopy(self,*args) -> str:
-        cmd = [self._objcopy_path,*args]
+
+    def objcopy(self, *args) -> str:
+        cmd = [self._objcopy_path, *args]
         return self.invoke_tool(cmd)
 
     def get_section_names(self) -> list:
         names = [n['name'] for n in self._sections]
         return names
 
-    def get_section_by_name(self,name):
+    def get_section_by_name(self, name):
         return list(filter(lambda section: section['name'] == name, self.sections))[0]
 
-    def get_section_by_vma(self,vma):
+    def get_section_by_vma(self, vma):
         return list(filter(lambda section: section['vma'] == vma, self.sections))[0]
 
-    def get_section_by_lma(self,lma):
+    def get_section_by_lma(self, lma):
         return list(filter(lambda section: section['lma'] == lma, self.sections))[0]
 
     def get_section_data(self, name) -> bytes:
@@ -147,16 +151,16 @@ class Elf(object):
         if 'CONTENTS' not in section['flags']:
             return bytearray(section['size'])
         tmpfile = self.get_tmp_file()
-        self.objcopy(self._elf_file,'--dump-section', name+'='+tmpfile)
-        data = open(tmpfile,'rb').read()
+        self.objcopy(self._elf_file, '--dump-section', name + '=' + tmpfile)
+        data = open(tmpfile, 'rb').read()
         os.remove(tmpfile)
         return data
-        
-    def delete_section(self,name):
+
+    def delete_section(self, name):
         self._sections = None
         outfile = self.get_tmp_file()
         try:
-            self.objcopy(self._elf_file,'--remove-section',name,outfile)
+            self.objcopy(self._elf_file, '--remove-section', name, outfile)
         except subprocess.CalledProcessError:
             names = self.get_section_names()
             if name not in names:
@@ -164,14 +168,14 @@ class Elf(object):
             raise
         self._elf_file = outfile
 
-    def update_section(self,name,data):
+    def update_section(self, name, data):
         self._sections = None
         tmpfile = self.get_tmp_file()
-        with open(tmpfile,'wb') as f:
+        with open(tmpfile, 'wb') as f:
             f.write(data)
         outfile = self.get_tmp_file()
         try:
-            self.objcopy(self._elf_file,'--update-section',name+'='+tmpfile,outfile)
+            self.objcopy(self._elf_file, '--update-section', name + '=' + tmpfile, outfile)
         except subprocess.CalledProcessError:
             names = self.get_section_names()
             if name not in names:
@@ -179,6 +183,6 @@ class Elf(object):
             raise
         self._elf_file = outfile
 
-    def save_as(self,dst_path):
-        shutil.copy(self._elf_file,dst_path)
+    def save_as(self, dst_path):
+        shutil.copy(self._elf_file, dst_path)
         self._elf_file = dst_path
