@@ -21,6 +21,7 @@ void throw_exception(uint32_t err_code){
 }
 #include "ui.h"
 const char*version = xstr(GIT_VERSION);
+const uint64_t version_timestamp_storage[2] __attribute__ ((section (".last16"))) = {0,VERSION_TIMESTAMP};
 
 
 void exception_handler(uint32_t err_code){

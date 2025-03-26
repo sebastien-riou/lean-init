@@ -53,11 +53,16 @@ Example of `.leaninit` section:
     ASCIZ ".text" 
     ASCIZ ".data"
 
-    /* end of table marker, don't change */
+    /* end of list marker, don't change */
     BYTE(0)
         
     /* indicates the total size to the tool for reporting purposes */
     LONG(LENGTH(FLASH))
+
+    /* Optional: 'footer data', i.e. data to place after compressed section */
+    LONG(4) /* size of the data: set to 0 if no use */
+    LONG(4) /* alignement of the data: set to 0 if no use */
+    LONG(0x12345678) /* Optional: the data */
 
     /* Take all the remaining flash, hoping it is enough */
     . = ORIGIN(FLASH)+LENGTH(FLASH);

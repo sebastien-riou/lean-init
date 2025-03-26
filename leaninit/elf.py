@@ -130,7 +130,7 @@ class Elf:
         return self.invoke_tool(cmd)
 
     def get_section_names(self) -> list:
-        names = [n['name'] for n in self._sections]
+        names = [n['name'] for n in self.sections]
         return names
 
     def get_section_by_name(self, name):
@@ -170,20 +170,29 @@ class Elf:
             raise
         self._elf_file = outfile
 
-    def update_section(self, name, data):
+    def update_section(self, name, *, data: bytes | None = None, vma: int | None = None, lma: int | None = None):
         self._sections = None
-        tmpfile = self.get_tmp_file()
-        with open(tmpfile, 'wb') as f:
-            f.write(data)
-        outfile = self.get_tmp_file()
+        
+        args = [self._elf_file]
+        if data:
+            tmpfile = self.get_tmp_file()
+            with open(tmpfile, 'wb') as f:
+                f.write(data)
+            outfile = self.get_tmp_file()
+            args += ['--update-section', name + '=' + tmpfile, outfile]
+        if vma:
+            args += ['--change-section-vma', name + '=' + str(vma)]
+        if lma:
+            args += ['--change-section-lma', name + '=' + str(lma)]
         try:
-            self.objcopy(self._elf_file, '--update-section', name + '=' + tmpfile, outfile)
+            self.objcopy(*args)
         except subprocess.CalledProcessError as e:
             names = self.get_section_names()
             if name not in names:
                 raise SectionNameNotFoundError(f'section "{name}" not found') from e
             raise
-        self._elf_file = outfile
+        if data:
+            self._elf_file = outfile
 
     def save_as(self, dst_path):
         shutil.copy(self._elf_file, dst_path)

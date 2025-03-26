@@ -62,6 +62,14 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
 
     print(f'{len(sections_start_addr)} sections to compress.')
 
+    footer_size = read_ptr()
+    logging.debug(f'footer_size = {humanfriendly.format_size(footer_size,binary=True)}')
+    if 0 == footer_size:
+        footer_data = None
+    else:
+        footer_align = read_ptr()
+        footer_data = leaninit_data.read(footer_size)
+
     if 0 == len(sections_start_addr):
         logging.warning('Nothing to compress')
         return
@@ -167,6 +175,14 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
             elf.delete_section(section['name'])
     write_ptr(leaninit_section['vma'])  # end marker
 
+    if footer_data:
+        addr = leaninit_section['vma'] + len(final_data)
+        _factor, misalign = divmod(addr, footer_align)
+        if misalign > 0:
+            pad_size = footer_align - misalign
+            final_data += bytes(pad_size)
+        final_data += footer_data
+
     org_size = leaninit_section['size']
     new_size = len(final_data)
     used_size = region_size - (org_size - new_size)
@@ -182,10 +198,11 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
     print(f'|{used_size_str:^14} | {region_size_str:^13} | {percentage_str:^11} |')
     print('-' * 47)
 
-    elf.update_section('.leaninit', final_data)
+    elf.update_section(leaninit_section['name'], data=final_data)
 
     if out_elf is not None:
         elf.save_as(out_elf)
+        logging.debug(f'result saved as {out_elf}')
 
 
 if __name__ == '__main__':

@@ -131,6 +131,12 @@ SECTIONS
     PROVIDE_HIDDEN (__fini_array_end = .);
   } /*>FLASH*/
 
+  .last16 : ALIGN(16)
+  {
+    __last16 = .;
+    KEEP (*(.last16))
+  } > FLASH
+
   /* .leaninit: shall be the last section in FLASH */
 	.leaninit (READONLY) : ALIGN(4)
 	{
@@ -149,12 +155,20 @@ SECTIONS
     ASCIZ ".text" /* Must be after .ARM* */
     ASCIZ ".data"
 
-    /* end of table marker, don't change */
+    /* end of list marker, don't change */
     BYTE(0)
 		
     /* indicates the total size to the tool for reporting purposes */
     LONG(LENGTH(FLASH))
     
+    /* Optional: data to place after compressed section */
+    LONG(16) /* size of the data: set to 0 if no use */
+    LONG(16) /* alignement of the data: set to 0 if no use */
+    LONG(__last16) /* Optional: the data */
+    LONG(__last16) /* Optional: the data */
+    LONG(__last16) /* Optional: the data */
+    LONG(__last16) /* Optional: the data */
+
 		/* Take all the remaining flash, hoping it is enough */
 		. = ORIGIN(FLASH)+LENGTH(FLASH);
 	} > FLASH
