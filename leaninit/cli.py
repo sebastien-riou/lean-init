@@ -14,6 +14,8 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
     elf = Elf(org_elf_file, binutils_prefix=binutils_prefix)
     pointer_size = elf.addr_width // 8
     leaninit_section = elf.get_section_by_name('.leaninit')
+    if (leaninit_section['lma'] % pointer_size) > 0:
+        raise RuntimeError(f'{leaninit_section['name']} is not aligned to pointer size ({pointer_size})')
     leaninit_data_bytes = elf.get_section_data(leaninit_section['name'])
     leaninit_data = io.BytesIO(leaninit_data_bytes)
 
@@ -163,6 +165,7 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
     print(f'Total gain: {format_size(total_gain)}.')
 
     final_data = bytearray()
+    final_data += bytes(pointer_size) # leaninit section size after compression. Will be filled later.
 
     def write_ptr(addr):
         nonlocal final_data
@@ -182,9 +185,11 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
             pad_size = footer_align - misalign
             final_data += bytes(pad_size)
         final_data += footer_data
+    
+    new_size = len(final_data)
+    final_data[0:pointer_size] = new_size.to_bytes(pointer_size, byteorder='little')
 
     org_size = leaninit_section['size']
-    new_size = len(final_data)
     used_size = region_size - (org_size - new_size)
     region_size_str = format_size(region_size)
     used_size_str = format_size(used_size)

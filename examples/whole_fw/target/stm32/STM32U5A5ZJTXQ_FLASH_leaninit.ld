@@ -82,7 +82,7 @@ SECTIONS
     KEEP (*(.fini))
 
     _etext = .;        /* define a global symbols at end of code */
-  } /*>FLASH*/
+  } >RAM
 
   /* Constant data into "FLASH" Rom type memory */
   .rodata :
@@ -90,20 +90,20 @@ SECTIONS
     _srodata = .;      /* create a global symbol at start */
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
-  } /*>FLASH*/
+  } >RAM
 
   .ARM.extab (READONLY) : /* The READONLY keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
     _sarmextab = .;        /* create a global symbol at start */
     *(.ARM.extab* .gnu.linkonce.armextab.*)
-  } /*>FLASH*/
+  } >RAM
   .ARM (READONLY) : /* The READONLY keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
     _sarm = .;        /* create a global symbol at start */
     __exidx_start = .;
     *(.ARM.exidx*)
     __exidx_end = .;
-  } /*>FLASH*/
+  } >RAM
 
   .preinit_array (READONLY) : /* The READONLY keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
@@ -111,7 +111,7 @@ SECTIONS
     PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
-  } /*>FLASH*/
+  } >RAM
 
   .init_array (READONLY) : /* The READONLY keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
@@ -120,7 +120,7 @@ SECTIONS
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
-  } /*>FLASH*/
+  } >RAM
 
   .fini_array (READONLY) : /* The READONLY keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
@@ -129,15 +129,15 @@ SECTIONS
     KEEP (*(SORT(.fini_array.*)))
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
-  } /*>FLASH*/
+  } >RAM
 
-  .last16 : ALIGN(16)
+  .version : 
   {
-    __last16 = .;
-    KEEP (*(.last16))
-  } > FLASH
+    __version = .;
+    KEEP (*(.version))
+  } >FLASH
 
-  /* .leaninit: shall be the last section in FLASH */
+  /* .leaninit: shall be the last section in FLASH and shall be aligned to pointer size */
 	.leaninit (READONLY) : ALIGN(4)
 	{
 		__leaninit_table = .;
@@ -164,10 +164,10 @@ SECTIONS
     /* Optional: data to place after compressed section */
     LONG(16) /* size of the data: set to 0 if no use */
     LONG(16) /* alignement of the data: set to 0 if no use */
-    LONG(__last16) /* Optional: the data */
-    LONG(__last16) /* Optional: the data */
-    LONG(__last16) /* Optional: the data */
-    LONG(__last16) /* Optional: the data */
+    LONG(0) /* Optional: the data */
+    LONG(0) /* Optional: the data */
+    LONG(0) /* Optional: the data */
+    LONG(__version - ORIGIN(FLASH)) /* Optional: the data */
 
 		/* Take all the remaining flash, hoping it is enough */
 		. = ORIGIN(FLASH)+LENGTH(FLASH);

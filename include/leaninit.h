@@ -6,6 +6,11 @@
 
 extern void* __leaninit_table;
 
+uintptr_t leaninit_section_size(){
+    const uintptr_t*addr = (const uintptr_t*)(&__leaninit_table);
+    return *addr;
+}
+
 //decompress lz4 "legacy" format .i.e. without any optional part
 //src shall not include the magic bytes
 static LEANINIT_FUNC const uint8_t* leaninit_decompress(void*dst,const void*const src){
@@ -75,7 +80,9 @@ static LEANINIT_FUNC const uint8_t* leaninit_decompress(void*dst,const void*cons
 }
 
 LEANINIT_FUNC void leaninit_init(){
-	const uint8_t*src = (const uint8_t*)(&__leaninit_table);
+    (void)leaninit_section_size; // avoid warning if not used
+    const uint8_t*src = (const uint8_t*)(&__leaninit_table);
+    src += sizeof(uintptr_t); // skip section size
 	while(1){
         uintptr_t dst = 0;
         unsigned int shift = 0;
@@ -87,3 +94,4 @@ LEANINIT_FUNC void leaninit_init(){
 		src = leaninit_decompress((void*)dst,src);
 	};
 }
+

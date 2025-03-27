@@ -36,16 +36,16 @@ SECTIONS
     KEEP (*(.fini))
 
     _etext = .;        /* define a global symbols at end of code */
-  } /*>FLASH*/
+  } >RAM
 
   /* Constant data into "FLASH" Rom type memory */
   .rodata :
   {
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
-  } /*>FLASH*/
+  } >RAM
 
-  /* .leaninit: shall be the last section in FLASH */
+  /* .leaninit: shall be the last section in FLASH  and shall be aligned to pointer size */
 	.leaninit (READONLY): ALIGN(4)
 	{
 		__leaninit_table = .;
