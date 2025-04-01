@@ -15,7 +15,7 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
     pointer_size = elf.addr_width // 8
     leaninit_section = elf.get_section_by_name('.leaninit')
     if (leaninit_section['lma'] % pointer_size) > 0:
-        raise RuntimeError(f'{leaninit_section['name']} is not aligned to pointer size ({pointer_size})')
+        raise RuntimeError(f"{leaninit_section['name']} is not aligned to pointer size ({pointer_size})")
     leaninit_data_bytes = elf.get_section_data(leaninit_section['name'])
     leaninit_data = io.BytesIO(leaninit_data_bytes)
 
@@ -108,7 +108,7 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
                 low_addr_lma = sections_start_addr[low_addr_index]
                 low_addr_section = copy.deepcopy(compressed_sections[low_addr_index])
                 high_addr_section = copy.deepcopy(compressed_sections[high_addr_index])
-                logging.debug(f'Merging {low_addr_section['name']} and {high_addr_section['name']}')
+                logging.debug(f"Merging {low_addr_section['name']} and {high_addr_section['name']}")
 
                 # remove both original sections
                 del sections_start_addr[low_addr_index]
@@ -143,7 +143,7 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
 
     # compress the sections
     for section in compressed_sections:
-        logging.debug(f'Compressing {section['name']}')
+        logging.debug(f"Compressing {section['name']}")
         section['compressed_data'] = lz4l.compress(section['data'])[4:]  # skip frame descriptor
 
     def format_size(size):
@@ -152,7 +152,7 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
     print()
     print('Sections compression summary:')
     print('-' * 77)
-    print(f'| {'Name':^16} | {'Size':^16} | {'Compressed size':^16} | {'Gain':^16} |')
+    print(f"| {'Name':^16} | {'Size':^16} | {'Compressed size':^16} | {'Gain':^16} |")
     total_gain = 0
     for section in compressed_sections:
         gain = len(section['data']) - len(section['compressed_data'])
@@ -160,12 +160,12 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
         size_str = format_size(len(section['data']))
         compressed_size_str = format_size(len(section['compressed_data']))
         total_gain += gain
-        print(f'| {section['name']:^16} | {size_str:^16} | {compressed_size_str:^16} | {gain_str:^16} |')
+        print(f"| {section['name']:^16} | {size_str:^16} | {compressed_size_str:^16} | {gain_str:^16} |")
     print('-' * 77)
     print(f'Total gain: {format_size(total_gain)}.')
 
     final_data = bytearray()
-    final_data += bytes(pointer_size) # leaninit section size after compression. Will be filled later.
+    final_data += bytes(pointer_size)  # leaninit section size after compression. Will be filled later.
 
     def write_ptr(addr):
         nonlocal final_data
@@ -185,7 +185,7 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
             pad_size = footer_align - misalign
             final_data += bytes(pad_size)
         final_data += footer_data
-    
+
     new_size = len(final_data)
     final_data[0:pointer_size] = new_size.to_bytes(pointer_size, byteorder='little')
 

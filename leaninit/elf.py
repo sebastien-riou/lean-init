@@ -172,7 +172,7 @@ class Elf:
 
     def update_section(self, name, *, data: bytes | None = None, vma: int | None = None, lma: int | None = None):
         self._sections = None
-        
+
         args = [self._elf_file]
         if data:
             tmpfile = self.get_tmp_file()
