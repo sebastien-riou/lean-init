@@ -158,11 +158,17 @@ class Elf:
         os.remove(tmpfile)
         return data
 
-    def delete_section(self, name):
+    def delete_section(self, *names):
         self._sections = None
         outfile = self.get_tmp_file()
+        args = [self._elf_file]
+        for name in list(names):
+            args.append('--remove-section')
+            args.append(name)
+        args.append(outfile)
+        logging.debug(f'args: {args}')
         try:
-            self.objcopy(self._elf_file, '--remove-section', name, outfile)
+            self.objcopy(*args)
         except subprocess.CalledProcessError as e:
             names = self.get_section_names()
             if name not in names:

@@ -93,10 +93,12 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
                 'merged': False,
             }
         )
+    #logging.debug(f'compressed_sections: {compressed_sections}') #way too verbose
 
     # attempt to merge sections
     merged = True
     merge_cnt = 0
+    sections_to_delete = []
     while merged:
         merged = False
         for last in sections_end_addr:
@@ -118,8 +120,8 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
                 del sections_start_addr[high_addr_index]
                 del sections_end_addr[high_addr_index]
                 del compressed_sections[high_addr_index]
-                elf.delete_section(low_addr_section['name'])
-                elf.delete_section(high_addr_section['name'])
+                sections_to_delete.append(high_addr_section['name'])
+                sections_to_delete.append(low_addr_section['name'])
 
                 # create the merged sections
                 new_last = high_addr_section['lma'] + high_addr_section['size'] - 1
@@ -140,6 +142,10 @@ def process_elf(org_elf_file, *, binutils_prefix, out_elf=None):
                     }
                 )
                 merged = True
+
+    # delete all sections that have been merged
+    logging.debug(f'sections_to_delete: {sections_to_delete}')
+    elf.delete_section(*sections_to_delete)
 
     # compress the sections
     for section in compressed_sections:
