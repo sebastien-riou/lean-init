@@ -103,3 +103,8 @@ It is a bare metal application which outputs the full text of Saint Exupery's no
 
 In this example, we compress the whole firmware. Everything is compressed except the startup file and the decompressor.
 At startup the firmware is decompressed into RAM and executed from there.
+
+## Note for developpers
+
+### How to publish a release
+Just create a release on Github with tag in the format 'vX.Y.Z'. A Github action is then building and uploading it to pypi.
