@@ -17,6 +17,10 @@ from dataclasses import dataclass
 ENCODERS = ('auto', 'cramjam', 'stdlib')
 MATCH_FINDERS = ('bt2', 'bt3', 'bt4', 'hc3', 'hc4')
 
+# Raw xz encoding is broken in older cramjam releases: 2.9 to 2.13 reject every raw LZMA1
+# stream with "liblzma internal error". 2.14 is the first one that works.
+CRAMJAM_MIN_VERSION = (2, 14)
+
 
 @dataclass(frozen=True)
 class Params:
@@ -86,6 +90,12 @@ def _cramjam():
         import cramjam
     except ImportError as e:
         raise RuntimeError('the cramjam package is required for the bundled LZMA encoder') from e
+    version = tuple(int(x) for x in cramjam.__version__.split('.')[:2])
+    if version < CRAMJAM_MIN_VERSION:
+        wanted = '.'.join(str(x) for x in CRAMJAM_MIN_VERSION)
+        raise RuntimeError(
+            f'cramjam {cramjam.__version__} cannot produce raw LZMA1 streams, {wanted} or newer is required'
+        )
     return cramjam
 
 

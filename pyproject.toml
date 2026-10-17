@@ -13,10 +13,9 @@ authors = [
 ]
 description = "Compression of initialized data and/or code for embedded systems."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 4 - Beta",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
@@ -26,7 +25,9 @@ classifiers = [
 ]
 dependencies = [
   "humanfriendly",
-  "cramjam>=2.9",
+  # 2.14 is the first release whose raw xz encoder works (older ones fail with
+  # "liblzma internal error"); it is also the first without Python 3.10 wheels.
+  "cramjam>=2.14",
 ]
 [project.optional-dependencies]
 build = [
@@ -41,12 +42,12 @@ doc = [
 
 
 [tool.black]
-target-version = ["py310"]
+target-version = ["py311"]
 line-length = 120
 skip-string-normalization = true
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py311"
 line-length = 120
 lint.select = [
   "A",
