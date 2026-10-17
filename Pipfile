@@ -4,9 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-ruff = "*"
+humanfriendly = "*"
+cramjam = "*"
 
 [dev-packages]
+ruff = "*"
+black = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.12"

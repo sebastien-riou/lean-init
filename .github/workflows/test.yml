@@ -1,0 +1,27 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install native tools used by the tests (lz4 for the lz4l codec, binutils and gcc for the C decoder)
+        run: sudo apt-get update && sudo apt-get install -y lz4 binutils gcc
+      - name: Install package and test dependencies
+        run: python -m pip install -e . pytest ruff black
+      - name: Lint
+        run: ruff check . && black --check .
+      - name: Test
+        run: pytest -v

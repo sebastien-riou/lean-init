@@ -58,6 +58,8 @@ class Elf:
                 self._byteorder = 'big'
             case 'bigriscv':
                 self._byteorder = 'big'
+            case 'i386' | 'x86':  # elf32-i386, elf64-x86-64: host-built test images
+                self._byteorder = 'little'
             case _:
                 logging.warning(f'could not identify endianess, file format is "{self._file_format}"')
         logging.debug(f'byteorder is "{self._byteorder}"')

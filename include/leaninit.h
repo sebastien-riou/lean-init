@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 
 #ifndef LEANINIT_FUNC
 #define LEANINIT_FUNC __attribute__((section(".leaninit_func")))
@@ -11,6 +12,15 @@ uintptr_t leaninit_section_size(){
     return *addr;
 }
 
+#ifdef LEANINIT_CODEC_LZMA_ARMTHUMB
+// Entries are ARM-Thumb BCJ filtered, raw LZMA1 streams (leaninit --codec lzma-armthumb).
+// The decoder lives in leaninit_lzma_armthumb.c, which must be built as a load-memory resident
+// object (see README). It never returns on a malformed entry: it calls leaninit_fail(), whose
+// default loops forever and which an integrator can override to record the code first.
+const uint8_t* leaninit_lzma_armthumb_decode(void*dst, const uint8_t*src);
+void leaninit_fail(uint32_t code) __attribute__((noreturn));
+#define leaninit_decompress leaninit_lzma_armthumb_decode
+#else
 //decompress lz4 "legacy" format .i.e. without any optional part
 //src shall not include the magic bytes
 static LEANINIT_FUNC const uint8_t* leaninit_decompress(void*dst,const void*const src){
@@ -78,6 +88,7 @@ static LEANINIT_FUNC const uint8_t* leaninit_decompress(void*dst,const void*cons
     }while(0);
     return in;
 }
+#endif
 
 LEANINIT_FUNC void leaninit_init(){
     (void)leaninit_section_size; // avoid warning if not used

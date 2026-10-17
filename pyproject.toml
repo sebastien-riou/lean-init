@@ -25,7 +25,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "humanfriendly"
+  "humanfriendly",
+  "cramjam>=2.9",
 ]
 [project.optional-dependencies]
 build = [
@@ -84,7 +85,7 @@ lint.unfixable = [
   # Don't touch unused imports
   "F401",
 ]
-exclude = ["doc","test","dist"]
+exclude = ["doc","dist"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["leaninit"]
@@ -97,9 +98,13 @@ ban-relative-imports = "all"
 
 [tool.ruff.lint.per-file-ignores]
 # Tests can use relative imports and assertions and print
-"test/**/*" = ["TID252", "S101", "T201"]
+"test/**/*" = ["TID252", "S101", "T201", "S603", "S607", "S311", "E501"]
 # CLI can print
 "leaninit/cli.py" = ["T201"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+pythonpath = ["."]
 
 [tool.mypy]
 disallow_untyped_defs = false
